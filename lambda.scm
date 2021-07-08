@@ -44,6 +44,21 @@
     (lambda (x y z) (subst x y z))
     ))
 
+(define (step e)
+  (let ((subst (make-subst)))
+    (cond
+     ((var? e) ())
+     ((lam? e) (map (lambda (e0) (lam (lam-name e) e0)) (step (lam-expr e))))
+     ((app? e)
+      (if (lam? (app-func e))
+          (list (subst (app-expr e) (lam-name (app-func e)) (lam-expr (app-func e))))
+          (concatenate
+           ()
+           (map (lambda (e0) (app e0 (app-expr e))) (step (app-func e)))
+           (map (lambda (e0) (app (app-func e) e0)) (step (app-expr e)))
+           )))
+     (else (error "Unexpected expr at step.")))))
+
 (list
  (free (app (lam "x" (var "y")) (var "x")))
  )
@@ -54,4 +69,8 @@
    ;(show (subst (var "w") "x" (lam "x" (var "x"))))
    (show (subst (lam "x" (var "x")) "x" (lam "x" (var "x"))))
    (show (subst (var "x") "y" (lam "x" (app (var "y") (var "x")))))
-))
+   ))
+
+(list
+ (map show (step (app (lam "x" (var "x")) (var "y"))))
+ )
