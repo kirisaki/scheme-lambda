@@ -19,8 +19,8 @@
 (define (free e)
   (cond
    ((var? e) (list (var-name e)))
-   ((lam? e) (let ((ns (free (lam-expr e)))) (remove (lambda (n) (eq? n (lam-name e))) ns)))
-   ((app? e) (let ((nsf (free (app-func e))) (nse (free (app-expr e)))) (concatenate (list nsf nse))))
+   ((lam? e) (remove (lambda (n) (eq? n (lam-name e))) (free (lam-expr e))))
+   ((app? e) (concatenate (list (free (app-func e)) (free (app-expr e)))))
    (else (error "Unexpected expr at free."))
    )
 )
